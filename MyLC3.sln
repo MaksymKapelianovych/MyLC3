@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MyLC3", "MyLC3\MyLC3.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LC3_Assembly", "LC3_Assembly\LC3_Assembly.vcxproj", "{F5F00174-E0B8-4FC8-8001-2C08DB59330B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleLC3", "SimpleLC3\SimpleLC3.vcxproj", "{BD85E52A-42FE-4050-93EC-7773108FCCB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{F5F00174-E0B8-4FC8-8001-2C08DB59330B}.Release|x64.Build.0 = Release|x64
 		{F5F00174-E0B8-4FC8-8001-2C08DB59330B}.Release|x86.ActiveCfg = Release|Win32
 		{F5F00174-E0B8-4FC8-8001-2C08DB59330B}.Release|x86.Build.0 = Release|Win32
+		{BD85E52A-42FE-4050-93EC-7773108FCCB1}.Debug|x64.ActiveCfg = Debug|x64
+		{BD85E52A-42FE-4050-93EC-7773108FCCB1}.Debug|x64.Build.0 = Debug|x64
+		{BD85E52A-42FE-4050-93EC-7773108FCCB1}.Debug|x86.ActiveCfg = Debug|Win32
+		{BD85E52A-42FE-4050-93EC-7773108FCCB1}.Debug|x86.Build.0 = Debug|Win32
+		{BD85E52A-42FE-4050-93EC-7773108FCCB1}.Release|x64.ActiveCfg = Release|x64
+		{BD85E52A-42FE-4050-93EC-7773108FCCB1}.Release|x64.Build.0 = Release|x64
+		{BD85E52A-42FE-4050-93EC-7773108FCCB1}.Release|x86.ActiveCfg = Release|Win32
+		{BD85E52A-42FE-4050-93EC-7773108FCCB1}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
