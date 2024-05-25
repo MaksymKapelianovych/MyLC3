@@ -11,7 +11,7 @@ uint16_t Utilities::LoadFileInto(string filename, uint16_t* memory, int memorySi
 
 	if (!input.is_open())
 	{
-		std::cout << "LOAD (did) FAILED" << std::endl;
+		std::cout << "LOAD FAILED" << std::endl;
 		return 0;
 	}
 
@@ -58,7 +58,7 @@ uint16_t Utilities::LoadFileInto(string filename, uint16_t* memory, int memorySi
 
 	if (!input.good())
 	{
-		perror("LOAD (not) OK");
+		perror("LOAD NOT OK");
 	}
 
 	std::cout << "File done being read." << std::endl;

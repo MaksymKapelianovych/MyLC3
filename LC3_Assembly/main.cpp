@@ -9,30 +9,33 @@
 
 int main( int argc, char *argv[] )
 {
-	if ( argc < 3 )
+	if ( argc < 2 )
 	{
 		std::cout << "Usage: " << argv[0] << " path swap_endianness\n"
-			<< "  path:             relative or abolute path to input assembly code using forward slashes.\n"
-			<< "  swap_endianness:  whether to swap byte order during assembly. Acceptable values are TRUE or FALSE. Should typically be TRUE."
+			<< "  path:             relative or absolute path to input assembly code using forward slashes.\n"
+			<< "  swap_endianness:  whether to swap byte order during assembly. Acceptable values are TRUE or FALSE. Default is TRUE."
 			<< '\n';
 
 		return 1;
 	}
 
-	bool switchEndianness;
+	bool swapEndianness = true;
 
-	if ( Utilities::ToUpperCase( argv[2] ) == "TRUE" )
-		switchEndianness = true;
-	else if ( Utilities::ToUpperCase( argv[2] ) == "FALSE" )
-		switchEndianness = false;
-	else
+	if (argc == 3)
 	{
-		std::cout << "Usage: " << argv[0] << " path swap_endianness\n"
-			<< "  path:             relative or abolute path to input assembly code using forward slashes.\n"
-			<< "  swap_endianness:  whether to swap byte order during assembly. Acceptable values are TRUE or FALSE. Should typically be TRUE."
-			<< '\n';
+		if ( Utilities::ToUpperCase( argv[2] ) == "TRUE" )
+			swapEndianness = true;
+		else if ( Utilities::ToUpperCase( argv[2] ) == "FALSE" )
+			swapEndianness = false;
+		else
+		{
+			std::cout << "Usage: " << argv[0] << " path swap_endianness\n"
+				<< "  path:             relative or absolute path to input assembly code using forward slashes.\n"
+				<< "  swap_endianness:  whether to swap byte order during assembly. Acceptable values are TRUE or FALSE. Default is TRUE."
+				<< '\n';
 
-		return 1;
+			return 1;
+		}
 	}
 
 	std::string inputFilePath = argv[1];
@@ -133,9 +136,9 @@ int main( int argc, char *argv[] )
 		std::cout << "No errors were encountered during assembly.";
 	}
 
-	if ( switchEndianness )
+	if ( swapEndianness )
 		for ( uint16_t &value : outputOfAssembler )
-			value = Utilities::SwitchEndianness( value );
+			value = Utilities::SwapEndianness( value );
 
 
 	std::ofstream output( "ASSEMBLY.obj", std::ios::binary | std::ios::trunc );

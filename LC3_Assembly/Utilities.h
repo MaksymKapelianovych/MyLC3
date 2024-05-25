@@ -7,7 +7,7 @@ class Utilities
 public:
 	static std::string ToUpperCase( const std::string &inputString );
 
-	static uint16_t SwitchEndianness( const uint16_t &inputValue );
+	static uint16_t SwapEndianness( const uint16_t &inputValue );
 
 	static std::string ConcatenateStrings( const std::vector<std::string> &lineToConcat, char delimitingCharacter = ' ' );
 };

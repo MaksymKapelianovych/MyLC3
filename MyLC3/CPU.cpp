@@ -1,28 +1,19 @@
-#include "Register.h"
+#include "CPU.h"
 #include "ExternalUtilities.h"
 #include <string>
 #include <iostream>
-#include <exception>
 
-Register::Register()
-{
-}
-
-Register::~Register()
-{
-}
-
-void Register::WriteMemoryAt(uint16_t address, uint16_t value)
+void CPU::WriteMemoryAt(uint16_t address, uint16_t value)
 {
     if (address < MEM_MAX)
         memory[address] = value;
 }
 
-uint16_t Register::reg[R_COUNT];
-uint16_t Register::memory[MEM_MAX] = {0};
-bool Register::shouldBeRunning = false;
+uint16_t CPU::reg[R_COUNT];
+uint16_t CPU::memory[MEM_MAX] = {0};
+bool CPU::shouldBeRunning = false;
 
-void Register::UpdateFlags(REGISTER regIndex)
+void CPU::UpdateFlags(REGISTER regIndex)
 {
     uint16_t valueAtRegister = reg[regIndex];
 
@@ -40,39 +31,39 @@ void Register::UpdateFlags(REGISTER regIndex)
     }
 }
 
-uint16_t Register::ReadMemoryAt(uint16_t address) 
+uint16_t CPU::ReadMemoryAt(uint16_t address) 
 {
-    if (address == Register::MR_KBSR)
+    if (address == CPU::MR_KBSR)
     {
         if (ExternalUtilities::check_key())
         {
-            Register::memory[Register::MR_KBSR] = (1 << 15);
-            Register::memory[Register::MR_KBDR] = getchar();
+            CPU::memory[CPU::MR_KBSR] = (1 << 15);
+            CPU::memory[CPU::MR_KBDR] = getchar();
         }
         else 
         {
-            Register::memory[Register::MR_KBSR] = 0;
+            CPU::memory[CPU::MR_KBSR] = 0;
         }
     }
     else if (address > (MEM_MAX))
     {
-        std::cout << "Attempted to read data outside of MEM_MAX. Attempted Address was: " << address << std::endl;
+        std::cout << "Attempted to read data outside of MEM_MAX. Attempted Address was: " << address << '\n';
     }
     
-    return Register::memory[address];
+    return CPU::memory[address];
 }
 
-void Register::ProcessProgram()
+void CPU::ProcessProgram()
 {
     reg[R_COND] = FL_ZRO;
 
-    while (Register::shouldBeRunning)
+    while (CPU::shouldBeRunning)
     {
         ProcessWord();
     }
 }
 
-void Register::Add(const uint16_t& instruction)
+void CPU::Add(const uint16_t& instruction)
 {
     // xxxx xxx xxx x xx xxx
     // inst  dr sr1 m xx sr2
@@ -92,10 +83,11 @@ void Register::Add(const uint16_t& instruction)
       
         reg[destinationRegister] = reg[firstRegister] + reg[secondRegister];
     }
+    
     UpdateFlags(static_cast<REGISTER>(destinationRegister));
 }
 
-void Register::And(const uint16_t& instruction)
+void CPU::And(const uint16_t& instruction)
 {
     // xxxx xxx xxx x xx xxx
     // inst  dr sr1 m xx sr2
@@ -119,7 +111,7 @@ void Register::And(const uint16_t& instruction)
     UpdateFlags(static_cast<REGISTER>(destinationRegister));
 }
 
-void Register::Not(const uint16_t& instruction) 
+void CPU::Not(const uint16_t& instruction) 
 {
     // xxxx xxx xxx x xxxxx
     // inst DR  SR  x xxxxx
@@ -128,10 +120,10 @@ void Register::Not(const uint16_t& instruction)
 
     reg[destinationRegister] = ~reg[firstRegister];
 
-    Register::UpdateFlags(static_cast<REGISTER>(destinationRegister));
+    CPU::UpdateFlags(static_cast<REGISTER>(destinationRegister));
 }
 
-void Register::Jmp(const uint16_t& instruction) 
+void CPU::Jmp(const uint16_t& instruction) 
 {
     // xxxx xxx xxx xxxxxx
     // inst xxx reg xxxxxx
@@ -140,7 +132,7 @@ void Register::Jmp(const uint16_t& instruction)
     reg[R_PC] = reg[regIndex];
 }
 
-void Register::Jsr(const uint16_t& instruction) 
+void CPU::Jsr(const uint16_t& instruction) 
 {
     // xxxx x xxxxxxxxxxx JSR
     // inst m1 PCOffset11
@@ -162,19 +154,19 @@ void Register::Jsr(const uint16_t& instruction)
     }
 }
 
-void Register::Ld(const uint16_t & instruction)
+void CPU::Ld(const uint16_t & instruction)
 {
     // xxxx xxx xxxxxxxxx
     // inst DR  PCOffset9
     uint16_t destinationRegister = (instruction >> 9) & 0x7;
     uint16_t signExtendedOffset = ExtendSign((instruction) & 0b111111111, 9);
     
-    reg[destinationRegister] = Register::ReadMemoryAt(reg[R_PC] + signExtendedOffset);
+    reg[destinationRegister] = CPU::ReadMemoryAt(reg[R_PC] + signExtendedOffset);
 
     UpdateFlags(static_cast<REGISTER>(destinationRegister));
 }
 
-void Register::Ldi(const uint16_t& instruction)
+void CPU::Ldi(const uint16_t& instruction)
 {
     // xxxx xxx xxxxxxxxx
     // inst DR  9PCOffset
@@ -187,7 +179,7 @@ void Register::Ldi(const uint16_t& instruction)
     UpdateFlags(static_cast<REGISTER>(destinationRegister));
 }
 
-void Register::Ldr(const uint16_t& instruction)
+void CPU::Ldr(const uint16_t& instruction)
 {
     // xxxx xxx xxx xxxxxx
     // inst DR  Reg  Off6
@@ -202,7 +194,7 @@ void Register::Ldr(const uint16_t& instruction)
     UpdateFlags(static_cast<REGISTER>(destinationRegister));
 }
 
-void Register::Lea(const uint16_t& instruction) 
+void CPU::Lea(const uint16_t& instruction) 
 {
     // xxxx xxx xxxxxxxxx
     // inst DR  PCOffset9
@@ -215,7 +207,7 @@ void Register::Lea(const uint16_t& instruction)
     UpdateFlags(static_cast<REGISTER>(destinationRegister));
 }
 
-void Register::St(const uint16_t& instruction) 
+void CPU::St(const uint16_t& instruction) 
 {
     // xxxx xxx xxxxxxxxx
     // inst SR  PCOffset9
@@ -226,7 +218,7 @@ void Register::St(const uint16_t& instruction)
     WriteMemoryAt(reg[R_PC] + signExtendedOffset, reg[sourceRegister]);
 }
 
-void Register::Sti(const uint16_t& instruction)
+void CPU::Sti(const uint16_t& instruction)
 {
     // xxxx xxx xxxxxxxxx
     // inst SR  PCOffset9
@@ -237,7 +229,7 @@ void Register::Sti(const uint16_t& instruction)
     WriteMemoryAt(ReadMemoryAt(reg[R_PC] + signExtendedOffset), reg[sourceRegister]);
 }
 
-void Register::Str(const uint16_t& instruction)
+void CPU::Str(const uint16_t& instruction)
 {
     // xxxx xxx xxx xxxxxx
     // inst SR  BSR Off6
@@ -249,7 +241,7 @@ void Register::Str(const uint16_t& instruction)
     WriteMemoryAt(reg[baseRegister] + signExtendedOffset, reg[sourceRegister]);
 }
 
-void Register::Trap(const uint16_t& instruction) 
+void CPU::Trap(const uint16_t& instruction) 
 {
     reg[R_R7] = reg[R_PC];
 
@@ -264,7 +256,7 @@ void Register::Trap(const uint16_t& instruction)
     }
     case TRAP_HALT:
     {
-        std::cout << "HALT" << std::endl;
+        std::cout << "HALT" << '\n';
         shouldBeRunning = false;
         break;
     }
@@ -320,12 +312,12 @@ void Register::Trap(const uint16_t& instruction)
         break;
     }
     default:
-        std::cout << "Error in execution of trap code: " << std::to_string(instruction & 0xFF) << " at line: " << std::to_string(reg[R_PC]) << ". Full instruction: " << std::to_string(instruction) << std::endl;
+        std::cout << "Error in execution of trap code: " << std::to_string(instruction & 0xFF) << " at line: " << std::to_string(reg[R_PC]) << ". Full instruction: " << std::to_string(instruction) << '\n';
         break;
     }
 }
 
-void Register::Br(const uint16_t& instruction)
+void CPU::Br(const uint16_t& instruction)
 {
     // xxxx x x x xxxxxxxxx
     // inst n z p PCOffset9
@@ -343,18 +335,18 @@ void Register::Br(const uint16_t& instruction)
     }
 }
 
-void Register::SetValueInRegister(REGISTER regIndex, uint16_t value)
+void CPU::SetValueInRegister(REGISTER regIndex, uint16_t value)
 {
-    Register::reg[regIndex] = value;
+    CPU::reg[regIndex] = value;
 }
 
-void Register::HandleBadOpCode(const uint16_t& instruction) 
+void CPU::HandleBadOpCode(const uint16_t& instruction) 
 {
-    std::cout << "Bad Op Code: " << instruction << std::endl;
+    std::cout << "Bad Op Code: " << instruction << '\n';
     //Do something!
 }
 
-void Register::ProcessWord()
+void CPU::ProcessWord()
 {
     uint16_t instr = ReadMemoryAt(reg[R_PC]++);
     uint16_t op = instr >> 12;
@@ -362,55 +354,55 @@ void Register::ProcessWord()
     switch (op)
     {
     case OP_ADD:
-        Register::Add(instr);
+        CPU::Add(instr);
         break;
     case OP_AND:
-        Register::And(instr);
+        CPU::And(instr);
         break;
     case OP_NOT:
-        Register::Not(instr);
+        CPU::Not(instr);
         break;
     case OP_BR:
-        Register::Br(instr);
+        CPU::Br(instr);
         break;
     case OP_JMP:
-        Register::Jmp(instr);
+        CPU::Jmp(instr);
         break;
     case OP_JSR:
-        Register::Jsr(instr);
+        CPU::Jsr(instr);
         break;
     case OP_LD:
-        Register::Ld(instr);
+        CPU::Ld(instr);
         break;
     case OP_LDI:
-        Register::Ldi(instr);
+        CPU::Ldi(instr);
         break;
     case OP_LDR:
-        Register::Ldr(instr);
+        CPU::Ldr(instr);
         break;
     case OP_LEA:
-        Register::Lea(instr);
+        CPU::Lea(instr);
         break;
     case OP_ST:
-        Register::St(instr);
+        CPU::St(instr);
         break;
     case OP_STI:
-        Register::Sti(instr);
+        CPU::Sti(instr);
         break;
     case OP_STR:
-        Register::Str(instr);
+        CPU::Str(instr);
         break;
     case OP_TRAP:
-        Register::Trap(instr);
+        CPU::Trap(instr);
         break;
     case OP_RES:
-        Register::HandleBadOpCode(instr);
+        CPU::HandleBadOpCode(instr);
         break;
     case OP_RTI:
-        Register::HandleBadOpCode(instr);
+        CPU::HandleBadOpCode(instr);
         break;
     default:
-        Register::HandleBadOpCode(instr);
+        CPU::HandleBadOpCode(instr);
         break;
     }
 }

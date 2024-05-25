@@ -2,7 +2,7 @@
 #include <cstdint>
 #define MEM_MAX (1 << 16)
 
-class Register
+class CPU
 {
 
 public:
@@ -64,10 +64,6 @@ public:
         FL_NEG = 1 << 2, /* N */
     };
 
-	Register();
-	
-    ~Register();
-
     static uint16_t ReadMemoryAt(uint16_t address);
 
     static void WriteMemoryAt(uint16_t address, uint16_t value);
@@ -106,9 +102,7 @@ public:
 
     static void HandleBadOpCode(const uint16_t& instruction);
 
-
-
-    inline static uint16_t GetValueInReg(REGISTER regIndex) 
+    static uint16_t GetValueInReg(REGISTER regIndex) 
     {
         return reg[regIndex];
     }
@@ -118,7 +112,7 @@ public:
     static void SetValueInRegister(REGISTER regIndex, uint16_t value);
 
 
-    static inline uint16_t ExtendSign(const uint16_t& value, const int& bitCount)
+    static uint16_t ExtendSign(const uint16_t& value, const int& bitCount)
     {
         uint16_t valueCopy = value;
         if (valueCopy >> (bitCount - 1)) 
